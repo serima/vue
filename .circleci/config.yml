@@ -33,6 +33,7 @@ jobs:
           at: ~/project
       - run:
           command: npm run lint
+
   flow-check:
     <<: *defaults
     steps:
@@ -81,6 +82,14 @@ workflows:
   install-and-parallel-test:
     jobs:
       - install
+      # should run first
+      - test-cover:
+          requires:
+            - install
+      # should run first
+      - test-e2e:
+          requires:
+            - install
       - lint:
           requires:
             - install
@@ -88,12 +97,6 @@ workflows:
           requires:
             - install
       - test-types:
-          requires:
-            - install
-      - test-cover:
-          requires:
-            - install
-      - test-e2e:
           requires:
             - install
       - test-ssr:
