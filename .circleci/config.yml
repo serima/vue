@@ -41,6 +41,7 @@ jobs:
           at: ~/project
       - run:
           command: node_modules/.bin/flow check
+
   test-types:
     <<: *defaults
     steps:
@@ -68,6 +69,7 @@ jobs:
       - attach_workspace:
           at: ~/project
       - run: npm run test:ssr
+
   test-weex:
     <<: *defaults
     steps:
@@ -75,18 +77,16 @@ jobs:
           at: ~/project
       - run: npm run test:weex
 
-
-
 workflows:
   version: 2
   install-and-parallel-test:
     jobs:
       - install
-      # should run first
+      # Run first to optimize test balance
       - test-cover:
           requires:
             - install
-      # should run first
+      # Run first to optimize test balance
       - test-e2e:
           requires:
             - install
