@@ -1,0 +1,95 @@
+version: 2
+
+defaults: &defaults
+  working_directory: ~/project/vue
+  docker:
+    - image: circleci/node:6-browsers
+
+jobs:
+  install:
+    <<: *defaults
+    steps:
+      - checkout
+      - run:
+          name: Install Dependencies
+          command: npm install
+      - persist_to_workspace:
+          root: ~/project
+          paths:
+            - vue
+  lint:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run:
+          command: npm run lint
+  flow-check:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run:
+          command: flow check
+  test-types:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run: npm run test:types
+
+  test-cover:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run: npm run test:cover
+
+  test-e2e:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run: npm run test:e2e -- --env phantomjs
+
+  test-ssr:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run: npm run test:ssr
+  test-weex:
+    <<: *defaults
+    steps:
+      - attach_workspace:
+          at: ~/project
+      - run: npm run test:weex
+
+
+
+workflows:
+  version: 2
+  install-and-parallel-test:
+    jobs:
+      - install:
+      - lint:
+          requires:
+            - install
+      - flow-check:
+          requires:
+            - install
+      - test-types:
+          requires:
+            - install
+      - test-cover:
+          requires:
+            - install
+      - test-e2e:
+          requires:
+            - install
+      - test-ssr:
+          requires:
+            - install
+      - test-weex:
+          requires:
+            - install
